@@ -2,12 +2,24 @@ import { Card, CardContent, Textarea, Typography, Button, Box, Snackbar, IconBut
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import { useState } from 'react';
+import axios from 'axios';
+import { API_URL } from '../constants';
 
 export default function Note(props) {
-    const { text, date, title, noActions = false } = props;
+    const { id, text, date, title, noActions = false } = props;
 
     const [confirmationOpen, setConfirmationOpen] = useState(false);
     const [copied, setCopied] = useState(false);
+
+    const deleteNote = () => {
+        axios.delete(API_URL + "/note/" + id)
+        .then(function (response) {
+            console.log(response);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+    }
 
     return (
         <Card>
@@ -58,13 +70,13 @@ export default function Note(props) {
             >
                 Copié !
             </Snackbar>
-            <ConfirmationPopup open={confirmationOpen} setOpen={setConfirmationOpen} content={<Note noActions={true} {...props}/>}/>
+            <ConfirmationPopup open={confirmationOpen} setOpen={setConfirmationOpen} confirmAction={deleteNote} content={<Note noActions={true} {...props}/>}/>
         </Card>
 
     )
 }
 
-function ConfirmationPopup({open, setOpen, content}) {
+function ConfirmationPopup({open, setOpen, content, confirmAction}) {
     return (
         <Modal open={open} onClose={() => setOpen(false)}>
             <ModalDialog variant="outlined" role="alertdialog">
@@ -80,7 +92,7 @@ function ConfirmationPopup({open, setOpen, content}) {
                     </div>
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="solid" color="danger" onClick={() => setOpen(false)}>
+                    <Button variant="solid" color="danger" onClick={() => {setOpen(false); confirmAction()}}>
                         Supprimer
                     </Button>
                     <Button variant="plain" color="neutral" onClick={() => setOpen(false)}>

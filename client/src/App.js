@@ -2,9 +2,8 @@ import * as React from 'react';
 import { CssVarsProvider } from '@mui/joy/styles';
 import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
-import Note from './components/Note';
 import NewNote from './components/NewNote';
-
+import Notes from './pages/Notes';
 
 export default function App() {
   return (
@@ -28,7 +27,8 @@ export default function App() {
             Clipboard manager
           </Typography>
           <NewNote />
-          <Note title={"titre"} date={"23 juillet 2024"} text={"Test de note...Test de note...Test de note...Test de note...Test de note...Test de note...Test de note...Test de note...\nTest de note...Test de note..."}/>
+          <Notes/>
+          {/* <Note title={"titre"} date={"23 juillet 2024"} text={"Test de note...Test de note...Test de note...Test de note...Test de note...Test de note...Test de note...Test de note...\nTest de note...Test de note..."}/> */}
         </div>
 
       </Sheet>

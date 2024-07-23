@@ -1,5 +1,7 @@
 import { Card, CardContent, Textarea, Typography, Button, Box, Snackbar, Input, CardActions, } from '@mui/joy';
 import { useState } from 'react';
+import axios from 'axios';
+import {API_URL} from '../constants';
 
 export default function Note() {
 
@@ -9,6 +11,16 @@ export default function Note() {
     const handleSubmit = e => {
         e.preventDefault();
         console.log('submit', e.target.title.value, e.target.content.value);
+        axios.post(API_URL + "/note", {
+            title: e.target.title.value,
+            content: e.target.content.value
+        })
+        .then(function (response) {
+            console.log(response);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
     }
 
     return (
