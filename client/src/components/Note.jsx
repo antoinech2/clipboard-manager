@@ -26,9 +26,8 @@ export default function Note(props) {
                 </IconButton>}
             </div>
             <Textarea
-                placeholder="Nouvelle note..."
                 defaultValue={text}
-                value={text}
+                readOnly
                 endDecorator={
                     <Box sx={{ display: 'flex', gap: 0.5, flex: 1 }}>
                         {!noActions && <Button variant="outlined" color="neutral" onClick={() => { navigator.clipboard.writeText(text); setCopied(true) }}>

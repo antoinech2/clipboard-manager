@@ -3,6 +3,7 @@ import { CssVarsProvider } from '@mui/joy/styles';
 import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
 import Note from './components/Note';
+import NewNote from './components/NewNote';
 
 
 export default function App() {
@@ -23,9 +24,10 @@ export default function App() {
         }}
       >
         <div>
-          <Typography level="h4" component="h1">
-            Welcome!
+          <Typography level="h2" component="h1">
+            Clipboard manager
           </Typography>
+          <NewNote />
           <Note title={"titre"} date={"23 juillet 2024"} text={"Test de note...Test de note...Test de note...Test de note...Test de note...Test de note...Test de note...Test de note...\nTest de note...Test de note..."}/>
         </div>
 
