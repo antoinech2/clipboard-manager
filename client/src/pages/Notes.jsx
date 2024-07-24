@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {API_URL} from '../constants';
 import Note from '../components/Note';
+import { Stack } from '@mui/joy';
+import NewNote from '../components/NewNote';
 
 export default function Notes() {
 
@@ -16,14 +18,15 @@ export default function Notes() {
     }, []);
 
     return (
-        <>
+        <Stack spacing={2}>
+            <NewNote setNotes={setNotes}/>
             {
-                notes.map((note, index) => {
+                notes.map((note) => {
                     return (
-                        <Note key={index} id={note.id} title={note.title} date={note.date_created} text={note.content} />
+                        <Note key={note.id} id={note.id} title={note.title} date={note.date_created} text={note.content} setNotes={setNotes}/>
                     )
                 })
             }
-        </>
+        </Stack>
     )
 }
