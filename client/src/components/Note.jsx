@@ -2,7 +2,7 @@ import { Card, CardContent, Textarea, Typography, Button, Box, IconButton, Modal
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import EditIcon from '@mui/icons-material/Edit';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { API_URL } from '../constants';
 import { enqueueSnackbar, closeSnackbar } from 'notistack'
@@ -17,6 +17,10 @@ export default function Note(props) {
 
     const textareaRef = useRef(null);
 
+    useEffect(() => {
+        setEditedText(text);
+    }, [text]);
+
     const deleteNote = () => {
         axios.delete(API_URL + "/note/" + id)
             .then(function (response) {
@@ -24,7 +28,7 @@ export default function Note(props) {
                 setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
             })
             .catch(function (error) {
-                console.log(error);
+                console.error(error);
                 enqueueSnackbar("Erreur lors de la suppression de la note", { variant: 'error', autoHideDuration: 5000 });
             });
     }
@@ -98,7 +102,6 @@ export default function Note(props) {
                     sx={{ position: 'absolute', top: '0.875rem', right: '3rem' }}
                     onClick={() => {
                         setEditState(true)
-                        console.log(textareaRef.current.value)
                         textareaRef.current.focus()
                     }}
                 >

@@ -1,58 +1,44 @@
 #!/usr/bin/env node
 
-/**
- * Module dependencies.
- */
-
-var app = require('../app');
-var debug = require('debug')('server:server');
 var http = require('http');
-
-/**
- * Get port from environment and store in Express.
- */
+var express = require('express');
+var expressWs = require('express-ws');
+var debug = require('debug')('server:server');
+var app = express();
+var init = require('../app').initApp;
 
 var port = normalizePort(process.env.PORT || '3001');
 app.set('port', port);
 
-/**
- * Create HTTP server.
- */
-
 var server = http.createServer(app);
 
-/**
- * Listen on provided port, on all network interfaces.
- */
+// Initialisez express-ws avec l'application Express et le serveur HTTP
+var expressWsInstance = expressWs(app, server);
+console.log('Express WebSocket instance initialized');
 
+
+// Écoutez sur le port spécifié
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
 /**
- * Normalize a port into a number, string, or false.
+ * Normalisez le port en nombre, chaîne ou faux.
  */
-
 function normalizePort(val) {
   var port = parseInt(val, 10);
-
   if (isNaN(port)) {
-    // named pipe
     return val;
   }
-
   if (port >= 0) {
-    // port number
     return port;
   }
-
   return false;
 }
 
 /**
- * Event listener for HTTP server "error" event.
+ * Gestionnaire d'événements pour l'erreur du serveur HTTP.
  */
-
 function onError(error) {
   if (error.syscall !== 'listen') {
     throw error;
@@ -62,7 +48,6 @@ function onError(error) {
     ? 'Pipe ' + port
     : 'Port ' + port;
 
-  // handle specific listen errors with friendly messages
   switch (error.code) {
     case 'EACCES':
       console.error(bind + ' requires elevated privileges');
@@ -78,13 +63,15 @@ function onError(error) {
 }
 
 /**
- * Event listener for HTTP server "listening" event.
+ * Gestionnaire d'événements pour l'événement "listening" du serveur HTTP.
  */
-
 function onListening() {
   var addr = server.address();
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+  console.info('Server is running on port ' + addr.port);
 }
+
+init(app, expressWsInstance.getWss());
