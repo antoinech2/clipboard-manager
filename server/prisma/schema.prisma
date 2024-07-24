@@ -16,4 +16,5 @@ model Note {
   title String?
   content  String
   date_created  DateTime
+  date_modified DateTime?
 }

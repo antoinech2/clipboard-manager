@@ -13,19 +13,39 @@ router.get('/', async (req, res) => {
 })
 
 router.post(`/`, async (req, res) => {
-  try{
+  try {
     const result = await prisma.note.create({
       data: { title: req.body.title, content: req.body.content, date_created: req.body.date_created || new Date() },
     })
-    res.json(result)  
+    res.json(result)
   }
-  catch(err){
+  catch (err) {
     res.status(500).json(err)
   }
 })
 
+router.put(`/:id`, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id)
+    if (typeof id == 'number' && id > 0) {
+      const post = await prisma.note.update({
+        where: { id: Number(id) },
+        data: { title: req.body.title, content: req.body.content, date_modified: new Date() },
+      })
+      res.json(post)
+    }
+    else {
+      return res.status(400).json({ error: 'Invalid id' })
+    }
+  }
+  catch (err) {
+    res.status(500).json(err)
+  }
+}
+)
+
 router.delete(`/:id`, async (req, res) => {
-  try{
+  try {
     const id = parseInt(req.params.id)
     if (typeof id == 'number' && id > 0) {
       const post = await prisma.note.delete({
@@ -37,7 +57,7 @@ router.delete(`/:id`, async (req, res) => {
       return res.status(400).json({ error: 'Invalid id' })
     }
   }
-  catch(err){
+  catch (err) {
     res.status(500).json(err)
   }
 })

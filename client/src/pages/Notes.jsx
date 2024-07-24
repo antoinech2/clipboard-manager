@@ -23,7 +23,7 @@ export default function Notes() {
             {
                 notes.map((note) => {
                     return (
-                        <Note key={note.id} id={note.id} title={note.title} date={note.date_created} text={note.content} setNotes={setNotes}/>
+                        <Note key={note.id} id={note.id} title={note.title} date={note.date_created} modified={note.date_modified} text={note.content} setNotes={setNotes}/>
                     )
                 })
             }
