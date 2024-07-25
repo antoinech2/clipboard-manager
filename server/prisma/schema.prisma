@@ -14,7 +14,10 @@ datasource db {
 model Note {
   id    Int     @id @default(autoincrement())
   title String?
-  content  String
+  content  String?
   date_created  DateTime
   date_modified DateTime?
+  file          Bytes?
+  file_name     String?
+  file_size     Int?
 }

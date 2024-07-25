@@ -1,31 +1,34 @@
 import { Card, CardContent, Textarea, Typography, Button, Box, IconButton, Modal, ModalDialog, DialogTitle, Divider, DialogContent, DialogActions, Input, CardActions, Stack } from '@mui/joy';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import EditIcon from '@mui/icons-material/Edit';
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { API_URL } from '../constants';
 import { enqueueSnackbar, closeSnackbar } from 'notistack'
+import { fileSize } from '../helper/fileSize';
 
 export default function Note(props) {
-    const { id, text, date, modified, title, setNotes, noActions = false } = props;
+    const { data, setNotes, noActions = false } = props;
+    const { id, content: text, date_created: date, date_modified: modified, title, file_name, file_size } = data
 
     const [confirmationOpen, setConfirmationOpen] = useState(false);
     const [editState, setEditState] = useState(false);
-    const [editedText, setEditedText] = useState(text);
+    const [editedText, setEditedText] = useState(text ?? "");
     const [editedTitle, setEditedTitle] = useState(title ?? "");
 
     const textareaRef = useRef(null);
 
     useEffect(() => {
-        setEditedText(text);
+        setEditedText(text ?? "");
     }, [text]);
 
     const deleteNote = () => {
         axios.delete(API_URL + "/note/" + id)
             .then(function (response) {
                 enqueueSnackbar("Note supprimée", { variant: 'warning', autoHideDuration: 7000, action: cancelDeleteAction(response.data) });
-                setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
+                //setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
             })
             .catch(function (error) {
                 console.error(error);
@@ -42,10 +45,11 @@ export default function Note(props) {
     );
 
     const cancelDelete = (data, snackbarId) => {
-        axios.post(API_URL + "/note", data)
+        const { file, file_name, file_size, ...sendingData } = data
+        axios.post(API_URL + "/note", sendingData)
             .then(function (response) {
                 enqueueSnackbar("Suppression de la note annulée !", { variant: 'warning', autoHideDuration: 4000 });
-                setNotes(prevNotes => [response.data, ...prevNotes]);
+                //setNotes(prevNotes => [response.data, ...prevNotes]);
                 closeSnackbar(snackbarId);
             })
             .catch(function (error) {
@@ -56,8 +60,8 @@ export default function Note(props) {
 
     const cancelEdit = () => {
         setEditState(false);
-        setEditedText(text);
-        setEditedTitle(title);
+        setEditedText(text ?? "");
+        setEditedTitle(title ?? "");
     }
 
     const confirmEdit = () => {
@@ -67,7 +71,7 @@ export default function Note(props) {
         })
             .then(function (response) {
                 setEditState(false);
-                setNotes(prevNotes => prevNotes.map(note => note.id === id ? response.data : note));
+                //setNotes(prevNotes => prevNotes.map(note => note.id === id ? response.data : note));
                 enqueueSnackbar("Note modifiée", { variant: 'success', autoHideDuration: 4000 });
             })
             .catch(function (error) {
@@ -76,6 +80,24 @@ export default function Note(props) {
             }
             );
     }
+
+    const downloadFile = () => {
+        axios.get(API_URL + "/note/" + id + "/file", { responseType: 'blob' })
+            .then(function (response) {
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', file_name);
+                document.body.appendChild(link);
+                link.click();
+            })
+            .catch(function (error) {
+                console.error(error);
+                enqueueSnackbar("Erreur lors du téléchargement du fichier", { variant: 'error', autoHideDuration: 5000 });
+            });
+    }
+
+    const hasModification = (editedText !== text || editedTitle !== title);
 
     return (
         <Card>
@@ -102,7 +124,7 @@ export default function Note(props) {
                     sx={{ position: 'absolute', top: '0.875rem', right: '3rem' }}
                     onClick={() => {
                         setEditState(true)
-                        textareaRef.current.focus()
+                        textareaRef.current?.focus()
                     }}
                 >
                     <EditIcon />
@@ -117,33 +139,38 @@ export default function Note(props) {
                     <DeleteForever />
                 </IconButton>}
             </div>
-            <Textarea
-                slotProps={{ textarea: { ref: textareaRef } }}
-                value={editedText}
-                onChange={(e) => setEditedText(e.target.value)}
-                readOnly={!editState}
-                endDecorator={
-                    <Box sx={{ display: 'flex', gap: 0.5, flex: 1 }}>
-                        {!noActions && <Button variant="outlined" color="neutral" onClick={() => {
-                            navigator.clipboard.writeText(text);
-                            enqueueSnackbar("Copié !", { variant: 'info', autoHideDuration: 2000 });
-                        }}>
-                            Copier
-                        </Button>}
-                        <Typography level="body-xs" alignContent={'end'} sx={{ ml: "auto" }}>
-                            {text.length} caractère(s)
-                        </Typography>
-                    </Box>
-                }
-            />
-            <CardContent orientation="horizontal">
-
+            <CardContent orientation="vertical">
+                {(text || editState) && <Textarea
+                    slotProps={{ textarea: { ref: textareaRef } }}
+                    value={editedText}
+                    onChange={(e) => setEditedText(e.target.value)}
+                    placeholder='Description...'
+                    readOnly={!editState}
+                    sx={{ mb: 1 }}
+                    endDecorator={
+                        <Box sx={{ display: 'flex', gap: 0.5, flex: 1 }}>
+                            {!noActions && <Button variant="outlined" color="neutral" onClick={() => {
+                                navigator.clipboard.writeText(editedText);
+                                enqueueSnackbar("Copié !", { variant: 'info', autoHideDuration: 2000 });
+                            }}>
+                                Copier
+                            </Button>}
+                            <Typography level="body-xs" alignContent={'end'} sx={{ ml: "auto" }}>
+                                {editedText.length} caractère(s)
+                            </Typography>
+                        </Box>
+                    }
+                />}
+                {file_name && <Stack direction={"row"} alignItems={"center"} gap={3}>
+                    <Typography level="body-ml">Fichier: ({fileSize(file_size)})</Typography>
+                    <Button startDecorator={<FileDownloadIcon />} onClick={downloadFile}>{file_name}</Button>
+                </Stack>}
             </CardContent>
             {editState && <CardActions buttonFlex="0 1 120px">
                 <Button variant="soft" color="primary" sx={{ mr: "auto" }} onClick={cancelEdit}>
                     Annuler
                 </Button>
-                <Button variant="solid" color="primary" sx={{ ml: "auto" }} onClick={confirmEdit}>
+                <Button variant="solid" color="primary" sx={{ ml: "auto" }} onClick={confirmEdit} disabled={!hasModification}>
                     Modifier
                 </Button>
             </CardActions>}
