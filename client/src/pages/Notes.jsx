@@ -31,11 +31,11 @@ export default function Notes() {
 
     return (
         <Stack spacing={2}>
-            <NewNote setNotes={setNotes} />
+            <NewNote/>
             {
                 notes.map((note) => {
                     return (
-                        <Note key={note.id} data={note} setNotes={setNotes} />
+                        <Note key={note.id} data={note} />
                     )
                 })
             }

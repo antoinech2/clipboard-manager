@@ -10,7 +10,7 @@ import { enqueueSnackbar, closeSnackbar } from 'notistack'
 import { fileSize } from '../helper/fileSize';
 
 export default function Note(props) {
-    const { data, setNotes, noActions = false } = props;
+    const { data, noActions = false } = props;
     const { id, content: text, date_created: date, date_modified: modified, title, file_name, file_size } = data
 
     const [confirmationOpen, setConfirmationOpen] = useState(false);
@@ -28,7 +28,6 @@ export default function Note(props) {
         axios.delete(API_URL + "/note/" + id)
             .then(function (response) {
                 enqueueSnackbar("Note supprimée", { variant: 'warning', autoHideDuration: 7000, action: cancelDeleteAction(response.data) });
-                //setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
             })
             .catch(function (error) {
                 console.error(error);
@@ -49,7 +48,6 @@ export default function Note(props) {
         axios.post(API_URL + "/note", sendingData)
             .then(function (response) {
                 enqueueSnackbar("Suppression de la note annulée !", { variant: 'warning', autoHideDuration: 4000 });
-                //setNotes(prevNotes => [response.data, ...prevNotes]);
                 closeSnackbar(snackbarId);
             })
             .catch(function (error) {
@@ -71,7 +69,6 @@ export default function Note(props) {
         })
             .then(function (response) {
                 setEditState(false);
-                //setNotes(prevNotes => prevNotes.map(note => note.id === id ? response.data : note));
                 enqueueSnackbar("Note modifiée", { variant: 'success', autoHideDuration: 4000 });
             })
             .catch(function (error) {

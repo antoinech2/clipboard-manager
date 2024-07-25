@@ -31,7 +31,7 @@ export default function App() {
           }}
         >
           <div>
-            <Typography level="h2" component="h1">
+            <Typography level="h2" component="h1" mb={1.5}>
               Clipboard manager
             </Typography>
             <Notes />

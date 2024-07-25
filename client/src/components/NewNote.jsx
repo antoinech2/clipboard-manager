@@ -20,7 +20,7 @@ const VisuallyHiddenInput = styled('input')`
   width: 1px;
 `;
 
-export default function NewNote({ setNotes }) {
+export default function NewNote() {
 
     const [title, setTitle] = useState('');
     const [text, setText] = useState('');
@@ -42,7 +42,6 @@ export default function NewNote({ setNotes }) {
                 setText('');
                 setTitle('');
                 setFile(null);
-                //setNotes(prevNotes => [response.data, ...prevNotes]);
                 enqueueSnackbar("Note ajoutée !", { variant: 'success', autoHideDuration: 7000, action: cancelAddAction(response.data.id) });
             })
             .catch(function (error) {
@@ -65,7 +64,6 @@ export default function NewNote({ setNotes }) {
             .then(function (response) {
                 enqueueSnackbar("Ajout de la note annulé !", { variant: 'warning', autoHideDuration: 4000 });
                 closeSnackbar(snackbarId);
-                //setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
                 setText(response.data.content ?? "");
                 setTitle(response.data.title ?? "");
             })
