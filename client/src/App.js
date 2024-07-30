@@ -4,8 +4,11 @@ import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
 import Notes from './pages/Notes';
 import { SnackbarProvider } from 'notistack'
+import axios from 'axios';
 
 export default function App() {
+
+  axios.defaults.withCredentials = true
 
   const classes = {
     root: {
@@ -35,7 +38,6 @@ export default function App() {
               Clipboard manager
             </Typography>
             <Notes />
-            {/* <Note title={"titre"} date={"23 juillet 2024"} text={"Test de note...Test de note...Test de note...Test de note...Test de note...Test de note...Test de note...Test de note...\nTest de note...Test de note..."}/> */}
           </div>
 
         </Sheet>

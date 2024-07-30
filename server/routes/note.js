@@ -3,6 +3,8 @@ var router = express.Router();
 var PrismaClient = require('@prisma/client').PrismaClient
 const prisma = new PrismaClient()
 const multer = require('multer');
+const fileSizeLimitMiddleware = require('../middleware/fileSizeLimit')
+const auth = require('../middleware/auth')
 
 const storage = multer.memoryStorage()
 const upload = multer({ storage: storage, limits: {
@@ -13,17 +15,23 @@ const upload = multer({ storage: storage, limits: {
 const objectForClient = { id: true, title: true, content: true, date_created: true, date_modified: true, file_name: true, file_size: true }
 
 // READ
-router.get('/', async (req, res) => {
-  const notes = await prisma.note.findMany({
-    take: 50,
-    orderBy: { date_created: 'desc' },
-    select: objectForClient
-  })
-  res.json(notes)
+router.get('/', auth, async (req, res) => {
+  try{
+    const notes = await prisma.note.findMany({
+      take: 50,
+      orderBy: { date_created: 'desc' },
+      select: objectForClient
+    })
+    res.json(notes)  
+  }
+  catch(err){
+    res.status(500).json(err)
+    console.error(err)
+  }
 })
 
 // READ FILE
-router.get('/:id/file', async (req, res) => {
+router.get('/:id/file', auth, async (req, res) => {
   const id = parseInt(req.params.id)
   if (typeof id == 'number' && id > 0) {
     const note = await prisma.note.findUnique({
@@ -43,14 +51,6 @@ router.get('/:id/file', async (req, res) => {
     return res.status(400).json({ error: 'Invalid id' })
   }
 })
-
-function fileSizeLimitMiddleware(req, res, next) {
-  if (req.headers["content-length"] > 1024 * 1024 * 11) {
-    return res.status(413).json({ error: 'Note size limit is 10MB' })
-  }
-  next()
-}
-
 
 // CREATE
 router.post(`/`, fileSizeLimitMiddleware, upload.single('file'), async (req, res) => {
@@ -80,7 +80,7 @@ router.post(`/`, fileSizeLimitMiddleware, upload.single('file'), async (req, res
 })
 
 // UPDATE
-router.put(`/:id`, async (req, res) => {
+router.put(`/:id`, auth, async (req, res) => {
   try {
     const id = parseInt(req.params.id)
     if (typeof id == 'number' && id > 0) {
@@ -103,7 +103,7 @@ router.put(`/:id`, async (req, res) => {
 )
 
 // DELETE
-router.delete(`/:id`, async (req, res) => {
+router.delete(`/:id`, auth, async (req, res) => {
   try {
     const id = parseInt(req.params.id)
     if (typeof id == 'number' && id > 0) {

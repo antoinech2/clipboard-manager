@@ -6,10 +6,12 @@ import { Stack } from '@mui/joy';
 import NewNote from '../components/NewNote';
 import useWebSocket from 'react-use-websocket';
 import { WS_URL } from '../constants';
+import Login from '../components/Login';
 
 export default function Notes() {
 
     const [notes, setNotes] = useState([]);
+    const [password, setPassword] = useState(null);
 
     const { lastJsonMessage } = useWebSocket(WS_URL, {
         shouldReconnect: (closeEvent) => true,
@@ -22,22 +24,31 @@ export default function Notes() {
     }, [lastJsonMessage]);
 
     useEffect(() => {
-        async function getResults() {
-            const results = await axios(API_URL + "/note");
-            setNotes(results.data)
-        }
-        getResults()
-    }, []);
+        axios.get(API_URL + "/note")
+            .then((response) => {
+                setNotes(response.data);
+            })
+            .catch((error) => {
+                if (error.response?.status === 401) {
+                    setNotes(null);
+                }
+                else {
+                    console.error(error);
+                }
+            });
+    }, [password]);
 
     return (
         <Stack spacing={2}>
-            <NewNote/>
-            {
+            <NewNote />
+            {notes ?
                 notes.map((note) => {
                     return (
                         <Note key={note.id} data={note} />
                     )
                 })
+                :
+                <Login setPassword={setPassword}/>
             }
         </Stack>
     )

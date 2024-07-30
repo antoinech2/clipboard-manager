@@ -19,7 +19,7 @@ function initApp(app) {
   app.use(express.urlencoded({ extended: false }));
   app.use(cookieParser());
   app.use(express.static(path.join(__dirname, 'public')));
-  app.use(cors());
+  app.use(cors({ origin: process.env.HOST_ORIGIN, credentials: true }));
 
   app.get('/api', (req, res) => {
     res.json("Ok")
